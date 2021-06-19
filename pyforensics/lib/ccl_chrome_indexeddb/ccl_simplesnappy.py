@@ -51,11 +51,11 @@ def _read_le_varint(stream: typing.BinaryIO) -> typing.Optional[typing.Tuple[int
     """Read varint from a stream.
     If the read is successful: returns a tuple of the (unsigned) value and the raw bytes making up that varint,
     otherwise returns None"""
-    # this only outputs unsigned
+    
     i = 0
     result = 0
     underlying_bytes = []
-    while i < 10:  # 64 bit max possible?
+    while i < 10:  
         raw = stream.read(1)
         if len(raw) < 1:
             return None
@@ -122,23 +122,23 @@ def decompress(data: typing.BinaryIO) -> bytes:
         log(f"Element Type is: {ElementType(tag)}")
 
         if tag == ElementType.Literal:
-            if ((type_byte & 0xFC) >> 2) < 60:  # embedded in tag
+            if ((type_byte & 0xFC) >> 2) < 60:  
                 length = 1 + ((type_byte & 0xFC) >> 2)
                 log(f"Literal length is embedded in type byte and is {length}")
-            elif ((type_byte & 0xFC) >> 2) == 60:  # 8 bit
+            elif ((type_byte & 0xFC) >> 2) == 60:  
                 length = 1 + read_byte(data)
                 log(f"Literal length is 8bit and is {length}")
-            elif ((type_byte & 0xFC) >> 2) == 61:  # 16 bit
+            elif ((type_byte & 0xFC) >> 2) == 61:  
                 length = 1 + read_uint16(data)
                 log(f"Literal length is 16bit and is {length}")
-            elif ((type_byte & 0xFC) >> 2) == 62:  # 16 bit
+            elif ((type_byte & 0xFC) >> 2) == 62:  
                 length = 1 + read_uint24(data)
                 log(f"Literal length is 24bit and is {length}")
-            elif ((type_byte & 0xFC) >> 2) == 63:  # 16 bit
+            elif ((type_byte & 0xFC) >> 2) == 63:  
                 length = 1 + read_uint32(data)
                 log(f"Literal length is 32bit and is {length}")
             else:
-                raise ValueError()  # cannot ever happen
+                raise ValueError()  
 
             literal_data = data.read(length)
             if len(literal_data) < length:
@@ -157,7 +157,7 @@ def decompress(data: typing.BinaryIO) -> bytes:
                 length = 1 + ((type_byte & 0xFC) >> 2)
                 offset = read_uint32(data)
             else:
-                raise ValueError()  # cannot ever happen
+                raise ValueError()  
 
             if offset == 0:
                 raise ValueError("Offset cannot be 0")
@@ -168,15 +168,15 @@ def decompress(data: typing.BinaryIO) -> bytes:
             log(f"Backreference relative offset: {offset}")
             log(f"Backreference absolute offset: {actual_offset}")
 
-            # have to read incrementally because you might have to read data that you've just written
-            # this is probably a really slow way of doing this.
+            
+            
             for i in range(length):
                 out.write(out.getbuffer()[actual_offset + i: actual_offset + i + 1].tobytes())
 
     result = out.getvalue()
     if uncompressed_length != len(result):
         raise ValueError("Wrong data length in uncompressed data")
-        # TODO: allow a partial / potentially bad result via a flag in the function call?
+        
 
     return result
 

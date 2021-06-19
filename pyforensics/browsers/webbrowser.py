@@ -71,14 +71,14 @@ class WebBrowser(object):
         if database not in list(self.structure.keys()):
             self.structure[database] = {}
 
-            # Copy and connect to copy of SQLite DB
+            
             conn = utils.open_sqlite_db(self, path, database)
             if not conn:
                 self.artifacts_counts[database] = 'Failed'
                 return
             cursor = conn.cursor()
 
-            # Find the names of each table in the db
+            
             try:
                 cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
                 tables = cursor.fetchall()
@@ -91,14 +91,14 @@ class WebBrowser(object):
                 log.error(f' - Could not query {database} in {path}')
                 return
 
-            # For each table, find all the columns in it
+            
             for table in tables:
-                # cursor.execute('PRAGMA table_info({})'.format(str(table[0])))
+                
                 cursor.execute('PRAGMA table_info({})'.format(table['name']))
                 columns = cursor.fetchall()
 
-                # Create a dict of lists of the table/column names
-                # self.structure[database][str(table[0])] = []
+                
+                
                 self.structure[database][table['name']] = []
                 for column in columns:
                     self.structure[database][table['name']].append(column['name'])
@@ -114,7 +114,7 @@ class WebBrowser(object):
         for artifact in self.parsed_artifacts:
             if isinstance(artifact, self.HistoryItem):
                 domain = urllib.parse.urlparse(artifact.url).hostname
-                # Some URLs don't have a domain, like local PDF files
+                
                 if domain:
                     self.origin_hashes[hashlib.md5(domain.encode()).hexdigest()] = domain
 

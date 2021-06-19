@@ -1,21 +1,21 @@
-###################################################################################################
-#
-# time_discrepancy_finder.py
-#   Attempts to find discrepancies between server-side and local timestamps
-#
-# References:
-#   Lee Whitfield (http://forensic4cast.com/2011/07/flashpost-google-plus-artefacts-url-forwarding/)
-#   Vincent Toubiana and Helen Nissenbaum (http://repository.cmu.edu/cgi/viewcontent.cgi?article=1058&context=jpc)
-#
-# Blog post explaining plugin:
-#   http://www.obsidianforensics.com/blog/detecting-clock-changes-using-cookies/
-#
-# Plugin Author: Apurva (ryan@obsidianforensics.com)
-#
-###################################################################################################
 
 
-# Config
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 friendlyName = "Time Discrepancy Finder"
 description = "Attempts to find discrepancies between server-side and local timestamps"
 artifactTypes = ("cookie (created)", "url")
@@ -37,7 +37,7 @@ def plugin(analysis_session=None):
     parsedItems = 0
 
     cookie_set = [
-        # website                   # cookie name            # regex for timestamp
+        
         {'.pubmatic.com/':          {'name': '_curtime',     'regex': r'(\d{10})'}},
         {'.invitemedia.com/':       {'name': 'dp_rec',       'regex': r':(\d{10})}'}},
         {'.atdmt.com/':             {'name': 'AA002',        'regex': r'^(\d{10})-'}},
@@ -66,7 +66,7 @@ def plugin(analysis_session=None):
     ]
 
     url_set = [
-        # regex for url and timestamp
+        
         r'google\..*&n=(\d{13})'
     ]
 
@@ -96,5 +96,5 @@ def plugin(analysis_session=None):
                                               'Difference: {} [Time Discrepancy]'.format(server, local, delta)
                         parsedItems += 1
 
-    # Description of what the plugin did
+    
     return "{} differences parsed".format(parsedItems)

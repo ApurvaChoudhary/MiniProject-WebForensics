@@ -1,15 +1,15 @@
-###################################################################################################
-#
-# chrome_extensions.py
-#   Adds the name and description of each Chrome extension found to the Interpretation field
-#
-# Plugin Author: Apurva (ryan@dfir.blog)
-#
-###################################################################################################
+
+
+
+
+
+
+
+
 
 import re
 
-# Config
+
 friendlyName = "Chrome Extension Names"
 description = "Adds the name and description of each Chrome extension found to the Interpretation field"
 artifactTypes = ("url", "local storage")
@@ -62,5 +62,5 @@ def plugin(analysis_session=None):
             except:
                 pass
 
-    # Description of what the plugin did
+    
     return f'{parsedItems} extension URLs parsed'

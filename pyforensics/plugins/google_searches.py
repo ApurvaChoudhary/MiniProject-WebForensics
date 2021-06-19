@@ -1,13 +1,13 @@
-###################################################################################################
-#
-# google_searches.py
-#   Extracts parameters from Google search URLs
-#
-# Plugin Author: Apurva (ryan@obsidianforensics.com)
-#
-###################################################################################################
 
-# Config
+
+
+
+
+
+
+
+
+
 friendlyName = 'Google Searches'
 description = 'Extracts parameters from Google search URLs'
 artifactTypes = ('url',)
@@ -24,7 +24,7 @@ def plugin(analysis_session=None):
     if analysis_session is None:
         return
 
-    google_re = re.compile(r'^http(s)?://www\.google(\.[A-z]{2,3})?(\.com)?(\.[A-z]{2,3})?/(search\?|webhp\?|#q)(.*)$')
+    google_re = re.compile(r'^http(s)?://www\.google(\.[A-z]{2,3})?(\.com)?(\.[A-z]{2,3})?/(search\?|webhp\?|
     extract_parameters_re = re.compile(r'(.+?)=(.+)')
     qdr_re = re.compile(r'(s|n|h|d|w|m|y)(\d{0,9})')
     tbs_qdr_re = re.compile(r'qdr:(s|n|h|d|w|m|y)(\d{0,9})')
@@ -42,21 +42,21 @@ def plugin(analysis_session=None):
                 parameters = {}
                 raw_parameters = m.group(6)
 
-                if m.group(5) == '#q':
+                if m.group(5) == '
                     raw_parameters = 'q' + raw_parameters
 
-                #Parse out search parameters
-                # TODO: Figure out # vs & separators
-                raw_parameters = raw_parameters.replace('#q=', '&q=')  # Replace #q with &q so it will split correctly
-                for pair in raw_parameters.split('&'):          # Split the query on the '&' delimiter
-                    # print pair
-                    p = re.search(extract_parameters_re, pair)  # Split each parameter on the first '='
+                
+                
+                raw_parameters = raw_parameters.replace('
+                for pair in raw_parameters.split('&'):          
+                    
+                    p = re.search(extract_parameters_re, pair)  
                     try:
-                        parameters[p.group(1)] = urllib.parse.unquote_plus(p.group(2))  # Put parameter name and value in hash
+                        parameters[p.group(1)] = urllib.parse.unquote_plus(p.group(2))  
                     except AttributeError:
                         pass
 
-                if 'q' in parameters:  # 'q' parameter must be present for rest of parameters to be parsed
+                if 'q' in parameters:  
                     derived = 'Searched for "{}" [ '.format(parameters['q'])
 
                     if 'pws' in parameters:
@@ -115,11 +115,11 @@ def plugin(analysis_session=None):
                         derived += 'Browser screen {}x{} | '.format(parameters['biw'], parameters['bih'])
 
                     if 'pq' in parameters:
-                        if parameters['pq'] != parameters['q']:  # Don't include PQ if same as Q to save space
+                        if parameters['pq'] != parameters['q']:  
                             derived += 'Previous query: "{}" | '.format(parameters['pq'])
 
                     if 'oq' in parameters:
-                        if parameters['oq'] != parameters['q']:  # Don't include OQ if same as Q to save space
+                        if parameters['oq'] != parameters['q']:  
                             if 'aq' in parameters:
                                 aq_re = re.compile(r'^\d$')
                                 ordinals = ['first', 'second', 'third', 'fourth', 'fifth',
@@ -139,8 +139,8 @@ def plugin(analysis_session=None):
                     if 'sourceid' in parameters:
                         derived += 'Using {}  | '.format(parameters['sourceid'])
 
-                    # if u'ei' in parameters:
-                    #     derived += u'Using %s  | ' % (parameters[u'sourceid'])
+                    
+                    
 
                     if derived[-2:] == '[ ':
                         derived = derived[:-2]
@@ -150,5 +150,5 @@ def plugin(analysis_session=None):
                     item.interpretation = derived
                 parsedItems += 1
 
-    # Description of what the plugin did
+    
     return '{} searches parsed'.format(parsedItems)

@@ -1,13 +1,13 @@
-###################################################################################################
-#
-# generic_timestamps.py
-#   If cookie data looks like it might be a timestamp, try to decode it
-#
-# Plugin Author: Apurva (ryan@obsidianforensics.com)
-#
-###################################################################################################
 
-# Config
+
+
+
+
+
+
+
+
+
 friendlyName = "Generic Timestamp Decoder"
 description = "Attempts to detect and decode potential epoch second, epoch millisecond, and Webkit timestamps"
 artifactTypes = ("cookie (created)", "cookie (accessed)", "local storage")
@@ -41,5 +41,5 @@ def plugin(analysis_session=None):
                     item.interpretation = friendly_date(int(ls_m.group(1))) + ' [potential timestamp]'
                     parsedItems += 1
 
-    # Description of what the plugin did
+    
     return "{} timestamps parsed".format(parsedItems)

@@ -41,7 +41,7 @@
                       <td colspan="3">
                         <input type="button" class="button" onclick="location.href='/sqlite-view';" style="width:100%"
                           % if not js_installed:
-                             value="View SQLite DB in Browser &#9888;" disabled title="&#9888; Incomplete Installation: Install javascript dependencies to view SQLite in the browser."
+                             value="View SQLite DB in Browser &
                           % else:
                             value="View SQLite DB in Browser"
                           % end

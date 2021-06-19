@@ -43,7 +43,7 @@ def _read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False) -> typing
     If the read is successful: returns a tuple of the (unsigned) value and the raw bytes making up that varint,
     otherwise returns None.
     Can be switched to limit the varint to 32 bit."""
-    # this only outputs unsigned
+    
     i = 0
     result = 0
     underlying_bytes = []
@@ -175,7 +175,7 @@ class Block:
                 non_shared_length = read_le_varint(buff, is_google_32bit=True)
                 value_length = read_le_varint(buff, is_google_32bit=True)
 
-                # sense check
+                
                 if offset >= self._restart_array_offset:
                     raise ValueError("Reading start of entry past the start of restart array")
                 if shared_length > len(key):
@@ -213,11 +213,11 @@ class LdbFile:
         self._index = self._read_index()
 
     def _read_block(self, handle: BlockHandle):
-        # block is the size in the blockhandle plus the trailer
-        # the trailer is 5 bytes long.
-        # idx  size  meaning
-        # 0    1     CompressionType (0 = none, 1 = snappy)
-        # 1    4     CRC32
+        
+        
+        
+        
+        
 
         self._f.seek(handle.offset)
         raw_block = self._f.read(handle.length)
@@ -235,7 +235,7 @@ class LdbFile:
 
     def _read_index(self) -> typing.Tuple[typing.Tuple[bytes, BlockHandle], ...]:
         index_block = self._read_block(self._index_handle)
-        # key is earliest key, value is BlockHandle to that data block
+        
         return tuple((entry.key, BlockHandle.from_bytes(entry.value))
                      for entry in index_block)
 
@@ -319,25 +319,25 @@ class LogFile:
                         in_record = False
                         yield start_block_offset * LogFile.LOG_BLOCK_SIZE, block
                     else:
-                        raise ValueError()  # Cannot happen
+                        raise ValueError()  
 
     def __iter__(self) -> typing.Iterable[Record]:
         """Iterate Records in this Log file"""
         for batch_offset, batch in self._get_batches():
-            # as per write_batch and write_batch_internal
-            # offset       length      description
-            # 0            8           (u?)int64 Sequence number
-            # 8            4           (u?)int32 Count - the log batch can contain multple entries
-            #
-            #         Then Count * the following:
-            #
-            # 12           1           ValueType (KeyState as far as this library is concerned)
-            # 13           1-4         VarInt32 length of key
-            # ...          ...         Key data
-            # ...          1-4         VarInt32 length of value
-            # ...          ...         Value data
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
 
-            with io.BytesIO(batch) as buff:  # it's just easier this way
+            with io.BytesIO(batch) as buff:  
                 header = buff.read(12)
                 seq, count = struct.unpack("<QI", header)
 
@@ -346,7 +346,7 @@ class LogFile:
                     state = KeyState(buff.read(1)[0])
                     key_length = read_le_varint(buff, is_google_32bit=True)
                     key = buff.read(key_length)
-                    # print(key)
+                    
                     if state != KeyState.Deleted:
                         value_length = read_le_varint(buff, is_google_32bit=True)
                         value = buff.read(value_length)
@@ -370,7 +370,7 @@ class VersionEditTag(enum.IntEnum):
     CompactPointer = 5,
     DeletedFile = 6,
     NewFile = 7,
-    # 8 was used for large value refs
+    
     PrevLogNumber = 9
 
 
@@ -515,7 +515,7 @@ class ManifestFile:
                         in_record = False
                         yield start_block_offset * LogFile.LOG_BLOCK_SIZE, block
                     else:
-                        raise ValueError()  # Cannot happen
+                        raise ValueError()  
 
     def __iter__(self):
         for batch_offset, batch in self._get_batches():

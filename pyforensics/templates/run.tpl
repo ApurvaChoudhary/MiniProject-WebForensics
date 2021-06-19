@@ -6,7 +6,7 @@
                 if (x == null || x == "" || x == "required" || x == "C:\\Path\\To\\Input\\Data") {
                     document.forms["run"]["profile_path"].value = "required";
                     document.forms["run"]["profile_path"].style.color = "white";
-                    document.forms["run"]["profile_path"].style.backgroundColor = "#81d742";
+                    document.forms["run"]["profile_path"].style.backgroundColor = "
                     return false;
                 }
                 var y = document.forms["run"]["cache_path"].value;

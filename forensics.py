@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-
-"""Hindsight - Internet history forensics for Google Chrome/Chromium.
-
-This script parses the files in the Chrome data folder, runs various plugins
-against the data, and then outputs the results in a spreadsheet.
-"""
-
 import argparse
 import datetime
 import importlib
@@ -21,7 +13,7 @@ import pyforensics.plugins
 from pyforensics.analysis import AnalysisSession
 from pyforensics.utils import banner, format_meta_output, format_plugin_output
 
-# Try to import module for timezone support
+
 try:
     import pytz
 except ImportError:
@@ -36,17 +28,7 @@ This script parses the files in the Chrome/Chromium/Brave data folder, runs vari
    against the data, and then outputs the results in a spreadsheet. '''
 
     epi = r'''
-Example:  C:\hindsight.py -i "C:\Users\Apurva\AppData\Local\Google\Chrome\User Data\Default" -o test_case
-
-The Chrome data folder default locations are:
-        WinXP: <userdir>\Local Settings\Application Data\Google\Chrome
-                \User Data\Default\
- Vista/7/8/10: <userdir>\AppData\Local\Google\Chrome\\User Data\Default\
-        Linux: <userdir>/.config/google-chrome/Default/
-         OS X: <userdir>/Library/Application Support/Google/Chrome/Default/
-          iOS: \Applications\com.google.chrome.ios\Library\Application Support
-                \Google\Chrome\Default\
-  Chromium OS: \home\user\<GUID>\
+Example:  C:\forensics.py -i "C:\Users\Apurva\AppData\Local\Google\Chrome\User Data\Default" -o test_case
     '''
 
     class MyParser(argparse.ArgumentParser):
@@ -99,13 +81,13 @@ The Chrome data folder default locations are:
                 print("Couldn't understand timezone; using UTC.")
                 args.timezone = pytz.timezone('UTC')
 
-    # Disable decryption on Linux unless explicitly enabled and supported
+    
     if args.decrypt == 'linux' and analysis_session.available_decrypts['linux'] == 1:
         analysis_session.available_decrypts['linux'] = 1
     else:
         analysis_session.available_decrypts['linux'] = 0
 
-    # Disable decryption on Mac unless explicitly enabled and supported
+    
     if args.decrypt == 'mac' and analysis_session.available_decrypts['mac'] == 1:
         analysis_session.available_decrypts['mac'] = 1
     else:
@@ -119,16 +101,16 @@ def main():
     def write_excel(analysis_session):
         import io
 
-        # Set up a StringIO object to save the XLSX content to before saving to disk
+        
         string_buffer = io.BytesIO()
 
-        # Generate the XLSX content using the function in the AnalysisSession and save it to the StringIO object
+        
         analysis_session.generate_excel(string_buffer)
 
-        # Go back to the beginning (be kind, rewind)
+        
         string_buffer.seek(0)
 
-        # Write the StringIO object to a file on disk named what the user specified
+        
         with open(f'{analysis_session.output_name}.{analysis_session.selected_output_format}', 'wb') as file_output:
             shutil.copyfileobj(string_buffer, file_output)
 
@@ -163,13 +145,13 @@ def main():
 
     print(banner)
 
-    # Useful when Hindsight is run from a different directory than where the file is located
+    
     real_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 
-    # Set up the AnalysisSession object, and transfer the relevant input arguments to it
+    
     analysis_session = AnalysisSession()
 
-    # parse_arguments needs the analysis_session as an input to set things like available decrypts
+    
     args = parse_arguments(analysis_session)
 
     if args.output:
@@ -185,28 +167,28 @@ def main():
     analysis_session.temp_dir = args.temp_dir
     analysis_session.log_path = args.log
 
-    # Set up logging
+    
     logging.basicConfig(filename=analysis_session.log_path, level=logging.DEBUG,
                         format='%(asctime)s.%(msecs).03d | %(levelname).01s | %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
     log = logging.getLogger(__name__)
 
-    # Hindsight version info
+    
     log.info(
         '\n' + '#' * 80 +
         f'\n###    Hindsight v{pyforensics.__version__} (https://github.com/obsidianforensics/hindsight)    ###\n' +
         '#' * 80)
 
-    # Analysis start time
+    
     print((format_meta_output("Start time", str(datetime.datetime.now())[:-3])))
 
-    # Print input & output directories
+    
     analysis_session.input_path = args.input
     print((format_meta_output('Input directory', args.input)))
     print((format_meta_output(
         'Output name', f'{analysis_session.output_name}.{analysis_session.selected_output_format}')))
 
-    # Run the AnalysisSession
+    
     print("\n Processing:")
     run_status = analysis_session.run()
     if not run_status:
@@ -216,10 +198,10 @@ def main():
     log.info("Plugins:")
     completed_plugins = []
 
-    # First run built-in plugins that ship with Hindsight
+    
     log.info(" Built-in Plugins:")
     for plugin in pyforensics.plugins.__all__:
-        # Check to see if we've already run this plugin (likely from a different path)
+        
         if plugin in completed_plugins:
             continue
 
@@ -243,24 +225,24 @@ def main():
             print((format_plugin_output(module.friendlyName, module.version, 'failed')))
             log.info(f' - Failed; {e}')
 
-    # Then look for any custom user-provided plugins in a 'plugins' directory
+    
     log.info(" Custom Plugins:")
 
     if real_path not in sys.path:
         sys.path.insert(0, real_path)
 
-    # Loop through all paths, to pick up all potential locations for custom plugins
+    
     for potential_path in sys.path:
-        # If a subdirectory exists called 'plugins' or 'pyforensics/plugins' at the current path, continue on
+        
         for potential_plugin_path in [os.path.join(potential_path, 'plugins'),
                                       os.path.join(potential_path, 'pyforensics', 'plugins')]:
             if os.path.isdir(potential_plugin_path):
                 log.info(" Found custom plugin directory {}:".format(potential_plugin_path))
                 try:
-                    # Insert the current plugin location to the system path, so we can import plugin modules by name
+                    
                     sys.path.insert(0, potential_plugin_path)
 
-                    # Get list of available plugins and run them
+                    
                     plugin_listing = os.listdir(potential_plugin_path)
 
                     log.debug(" - Contents of plugin folder: " + str(plugin_listing))
@@ -268,7 +250,7 @@ def main():
                         if plugin[-3:] == ".py" and plugin[0] != '_':
                             plugin = plugin.replace(".py", "")
 
-                            # Check to see if we've already run this plugin (likely from a different path)
+                            
                             if plugin in completed_plugins:
                                 log.debug(" - Skipping '{}'; a plugin with that name has run already".format(plugin))
                                 continue
@@ -296,15 +278,15 @@ def main():
                     log.debug(' - Error loading plugins ({})'.format(e))
                     print('  - Error loading plugins')
                 finally:
-                    # Remove the current plugin location from the system path, so we don't loop over it again
+                    
                     sys.path.remove(potential_plugin_path)
 
-    # Check if output directory exists; attempt to create if it doesn't
+    
     if os.path.dirname(analysis_session.output_name) != "" \
             and not os.path.exists(os.path.dirname(analysis_session.output_name)):
         os.makedirs(os.path.dirname(analysis_session.output_name))
 
-    # Get desired output type form args.format and call the correct output creation function
+    
     if analysis_session.selected_output_format == 'xlsx':
         log.info("Writing output; XLSX format selected")
         try:
@@ -325,7 +307,7 @@ def main():
         print(("\n Writing {}.sqlite".format(analysis_session.output_name)))
         write_sqlite(analysis_session)
 
-    # Display and log finish time
+    
     print(f'\n Finish time: {str(datetime.datetime.now())[:-3]}')
     log.info(f'Finish time: {str(datetime.datetime.now())[:-3]}\n\n')
 

@@ -27,10 +27,10 @@ def open_sqlite_db(chrome, database_path, database_name):
 
     else:
         try:
-            # Create 'temp' directory if doesn't exists
+            
             Path(chrome.temp_dir).mkdir(parents=True, exist_ok=True)
 
-            # Copy database to temp directory
+            
             db_path_to_open = os.path.join(chrome.temp_dir, database_name)
             shutil.copyfile(os.path.join(database_path, database_name), db_path_to_open)
         except Exception as e:
@@ -38,10 +38,10 @@ def open_sqlite_db(chrome, database_path, database_name):
             return None
 
     try:
-        # Connect to copied database
+        
         db_conn = sqlite3.connect(db_path_to_open)
 
-        # Use a dictionary cursor
+        
         db_conn.row_factory = dict_factory
     except Exception as e:
         log.error(f' - Error opening {database_name}: {e}')
@@ -89,25 +89,25 @@ def to_datetime(timestamp, timezone=None):
             log.warning(f'Exception parsing {timestamp} to datetime: {e}')
             return datetime.datetime.fromtimestamp(0)
 
-        # Really big Webkit microseconds (17-8 digits), most often cookie expiry dates.
-        # Microsecond timestamps past 2038 can be problematic with datetime.utcfromtimestamp(timestamp).
+        
+        
         if timestamp > 13700000000000000:
             new_timestamp = datetime.datetime.fromtimestamp(0) \
                             + datetime.timedelta(seconds=(timestamp / 1000000) - 11644473600)
 
-        # Webkit microseconds (17 digits)
-        elif timestamp > 12000000000000000:  # ts > 1981
+        
+        elif timestamp > 12000000000000000:  
             new_timestamp = datetime.datetime.utcfromtimestamp((timestamp / 1000000) - 11644473600)
 
-        # Epoch milliseconds (13 digits)
-        elif 2500000000000 > timestamp > 1280000000000:  # 2049 > ts > 2010
+        
+        elif 2500000000000 > timestamp > 1280000000000:  
             new_timestamp = datetime.datetime.utcfromtimestamp(timestamp / 1000)
 
-        # Webkit seconds (11 digits)
-        elif 15000000000 > timestamp >= 12900000000:  # 2076 > ts > 2009
+        
+        elif 15000000000 > timestamp >= 12900000000:  
             new_timestamp = datetime.datetime.utcfromtimestamp(timestamp - 11644473600)
 
-        # Epoch seconds (10 digits typically, but could be less)
+        
         else:
             new_timestamp = datetime.datetime.utcfromtimestamp(timestamp)
 
@@ -142,8 +142,8 @@ def get_ldb_records(ldb_path, prefix=''):
         log.warning(f' - Failed to import ccl_leveldb; unable to process {ldb_path}')
         return []
 
-    # The ldb key and value are both bytearrays, so the prefix must be too. We allow
-    # passing the prefix into this function as a string for convenience.
+    
+    
     if isinstance(prefix, str):
         prefix = prefix.encode()
 
@@ -209,18 +209,18 @@ def read_int64(input_bytes, ptr):
     value = struct.unpack('<Q', input_bytes[ptr:ptr + 8])[0]
     return value, ptr + 8
 
-#
-# def create_temp_db(path, database):
-#
-#     # Create 'temp' directory if doesn't exists
-#     Path(temp_directory_name).mkdir(parents=True, exist_ok=True)
-#
-#     # Copy database to temp directory
-#     shutil.copyfile(os.path.join(path, database), os.path.join(temp_directory_name, database))
 
-#
-# def get_temp_db_directory():
-#     return temp_directory_name
+
+
+
+
+
+
+
+
+
+
+
 
 
 banner = r''''''

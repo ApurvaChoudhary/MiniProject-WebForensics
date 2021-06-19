@@ -1,13 +1,13 @@
-###################################################################################################
-#
-# quantcast_cookies.py
-#   Interpret Quantcast cookies* (parsing partially complete)
-#
-# Plugin Author: Apurva (ryan@obsidianforensics.com)
-#
-###################################################################################################
 
-# Config
+
+
+
+
+
+
+
+
+
 friendlyName = "Quantcast Cookie Parser"
 description = "Parses Quantcast cookies"
 artifactTypes = ["cookie (created)", "cookie (accessed)"]
@@ -37,5 +37,5 @@ def plugin(analysis_session=None):
                                           + ' [Quantcast Cookie Timestamp]'
                     parsedItems += 1
 
-    # Description of what the plugin did
+    
     return "{} cookies parsed".format(parsedItems)

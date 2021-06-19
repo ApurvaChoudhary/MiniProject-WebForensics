@@ -15,7 +15,7 @@ class Brave(Chrome):
         self.browser_name = "Brave"
 
     def get_history(self, path, history_file, version, row_type):
-        # Set up empty return array
+        
         results = []
 
         log.info("History items from {}:".format(history_file))
@@ -38,13 +38,13 @@ class Brave(Chrome):
                                                 last_accessed, last_accessed,
                                                 None, None, None, None, None, None, None, None, None, )
 
-                        # Set the row type as determined earlier
+                        
                         new_row.row_type = row_type
 
-                        # Set the row type as determined earlier
+                        
                         new_row.timestamp = to_datetime(new_row.last_visit_time, self.timezone)
 
-                        # Add the new row to the results array
+                        
                         results.append(new_row)
 
             self.artifacts_counts[history_file] = len(results)
@@ -59,7 +59,7 @@ class Brave(Chrome):
     def process(self):
         supported_databases = ['History', 'Archived History', 'Web Data', 'Cookies', 'Login Data', 'Extension Cookies']
         supported_subdirs = ['Local Storage', 'Extensions', 'Cache']
-        supported_jsons = ['Bookmarks']  # , 'Preferences']
+        supported_jsons = ['Bookmarks']  
         supported_items = supported_databases + supported_subdirs + supported_jsons
         log.debug("Supported items: " + str(supported_items))
         input_listing = os.listdir(self.profile_path)
@@ -69,7 +69,7 @@ class Brave(Chrome):
             if input_file in supported_items:
                 log.info(" - %s" % input_file)
 
-        # Process History files
+        
         custom_type_re = re.compile(r'__([A-z0-9\._]*)$')
         for input_file in input_listing:
             if re.search(r'session-store-', input_file):
@@ -77,7 +77,7 @@ class Brave(Chrome):
                 custom_type_m = re.search(custom_type_re, input_file)
                 if custom_type_m:
                     row_type = 'url ({})'.format(custom_type_m.group(1))
-                # self.get_history(args.input, input_file, self.version, row_type)
+                
                 self.get_history(self.profile_path, input_file, self.version, row_type)
                 display_type = 'URL' if not custom_type_m else 'URL ({})'.format(custom_type_m.group(1))
                 self.artifacts_display[input_file] = "{} records".format(display_type)
@@ -90,14 +90,14 @@ class Brave(Chrome):
                     partition_path = os.path.join(self.profile_path, input_file, partition)
                     partition_listing = os.listdir(os.path.join(self.profile_path, input_file, partition))
                     if 'Cookies' in partition_listing:
-                        self.get_cookies(partition_path, 'Cookies', [47])  # Parse cookies like a modern Chrome version (v47)
+                        self.get_cookies(partition_path, 'Cookies', [47])  
                         print((self.format_processing_output("Cookie records ({})".format(partition), self.artifacts_counts['Cookies'])))
 
                     if 'Local Storage' in partition_listing:
                         self.get_local_storage(partition_path, 'Local Storage')
                         print((self.format_processing_output("Local Storage records ({})".format(partition), self.artifacts_counts['Local Storage'])))
 
-        # Version information is moved to after parsing history, as we read the version from the same file rather than detecting via SQLite table attributes
+        
         print((self.format_processing_output("Detected {} version".format(self.browser_name), self.display_version)))
         log.info("Detected {} version {}".format(self.browser_name, self.display_version))
 
@@ -113,7 +113,7 @@ class Brave(Chrome):
                                                 self.artifacts_counts['GPUCache'])))
 
         if 'Cookies' in input_listing:
-            self.get_cookies(self.profile_path, 'Cookies', [47])  # Parse cookies like a modern Chrome version (v47)
+            self.get_cookies(self.profile_path, 'Cookies', [47])  
             self.artifacts_display['Cookies'] = "Cookie records"
             print((self.format_processing_output("Cookie records", self.artifacts_counts['Cookies'])))
 
@@ -123,7 +123,7 @@ class Brave(Chrome):
             print((self.format_processing_output("Local Storage records", self.artifacts_counts['Local Storage'])))
 
         if 'Web Data' in input_listing:
-            self.get_autofill(self.profile_path, 'Web Data', [47])  # Parse autofill like a modern Chrome version (v47)
+            self.get_autofill(self.profile_path, 'Web Data', [47])  
             self.artifacts_display['Autofill'] = "Autofill records"
             print((self.format_processing_output(self.artifacts_display['Autofill'],
                                                 self.artifacts_counts['Autofill'])))
@@ -138,8 +138,8 @@ class Brave(Chrome):
             self.artifacts_display['UserPrefs'] = "UserPrefs Items"
             print((self.format_processing_output("UserPrefs Items", self.artifacts_counts['UserPrefs'])))
 
-        # Destroy the cached key so that json serialization doesn't
-        # have a cardiac arrest on the non-unicode binary data.
+        
+        
         self.cached_key = None
 
         self.parsed_artifacts.sort()

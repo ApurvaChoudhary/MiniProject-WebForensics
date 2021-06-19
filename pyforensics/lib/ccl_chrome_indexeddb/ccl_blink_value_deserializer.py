@@ -27,26 +27,26 @@ from dataclasses import dataclass
 
 import ccl_v8_value_deserializer
 
-# See: https://chromium.googlesource.com/chromium/src/third_party/+/master/blink/renderer/bindings/core/v8/serialization
 
-# WebCoreStrings are read as (length:uint32_t, string:UTF8[length]).
-# RawStrings are read as (length:uint32_t, string:UTF8[length]).
-# RawUCharStrings are read as
-#     (length:uint32_t, string:UChar[length/sizeof(UChar)]).
-# RawFiles are read as
-#     (path:WebCoreString, url:WebCoreStrng, type:WebCoreString).
-# There is a reference table that maps object references (uint32_t) to
-# v8::Values.
-# Tokens marked with (ref) are inserted into the reference table and given the
-# next object reference ID after decoding.
-# All tags except InvalidTag, PaddingTag, ReferenceCountTag, VersionTag,
-# GenerateFreshObjectTag and GenerateFreshArrayTag push their results to the
-# deserialization stack.
-# There is also an 'open' stack that is used to resolve circular references.
-# Objects or arrays may contain self-references. Before we begin to deserialize
-# the contents of these values, they are first given object reference IDs (by
-# GenerateFreshObjectTag/GenerateFreshArrayTag); these reference IDs are then
-# used with ObjectReferenceTag to tie the recursive knot.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 __version__ = "0.1"
 __description__ = "Partial reimplementation of the Blink Javascript Object Serialization"
@@ -74,80 +74,80 @@ class BlobIndex:
 
 
 class Constants:
-    tag_kMessagePortTag = b"M"  # index:int -> MessagePort. Fills the result with
-                                # transferred MessagePort.
-    tag_kMojoHandleTag = b"h"   # index:int -> MojoHandle. Fills the result with
-                                # transferred MojoHandle.
-    tag_kBlobTag = b"b"         # uuid:WebCoreString, type:WebCoreString, size:uint64_t ->
-                                # Blob (ref)
-    tag_kBlobIndexTag = b"i"    # index:int32_t -> Blob (ref)
-    tag_kFileTag = b"f"         # file:RawFile -> File (ref)
-    tag_kFileIndexTag = b"e"    # index:int32_t -> File (ref)
-    tag_kDOMFileSystemTag = b"d"  # type : int32_t, name:WebCoreString,
-                                  # uuid:WebCoreString -> FileSystem (ref)
-    tag_kNativeFileSystemFileHandleTag = b"n"  # name:WebCoreString, index:uint32_t
-                                               # -> NativeFileSystemFileHandle (ref)
-    tag_kNativeFileSystemDirectoryHandleTag = b"N"  # name:WebCoreString, index:uint32_t ->
-                                                   # NativeFileSystemDirectoryHandle (ref)
-    tag_kFileListTag = b"l"                     # length:uint32_t, files:RawFile[length] -> FileList (ref)
-    tag_kFileListIndexTag = b"L"                # length:uint32_t, files:int32_t[length] -> FileList (ref)
-    tag_kImageDataTag = b"#"                   # tags terminated by ImageSerializationTag::kEnd (see
-                                               # SerializedColorParams.h), width:uint32_t,
-                                               # height:uint32_t, pixelDataLength:uint64_t,
-                                               # data:byte[pixelDataLength]
-                                               # -> ImageData (ref)
-    tag_kImageBitmapTag = b"g"        # tags terminated by ImageSerializationTag::kEnd (see
-                                      # SerializedColorParams.h), width:uint32_t,
-                                      # height:uint32_t, pixelDataLength:uint32_t,
-                                      # data:byte[pixelDataLength]
-                                      # -> ImageBitmap (ref)
-    tag_kImageBitmapTransferTag = "G"       # index:uint32_t -> ImageBitmap. For ImageBitmap transfer
-    tag_kOffscreenCanvasTransferTag = b"H"  # index, width, height, id,
-                                            # filter_quality::uint32_t ->
-                                            # OffscreenCanvas. For OffscreenCanvas
-                                            # transfer
-    tag_kReadableStreamTransferTag = b"r"    # index:uint32_t
-    tag_kTransformStreamTransferTag = b"m"   # index:uint32_t
-    tag_kWritableStreamTransferTag = b"w"    # index:uint32_t
-    tag_kDOMPointTag = b"Q"                  # x:Double, y:Double, z:Double, w:Double
-    tag_kDOMPointReadOnlyTag = b"W"          # x:Double, y:Double, z:Double, w:Double
-    tag_kDOMRectTag = b"E"                   # x:Double, y:Double, width:Double, height:Double
-    tag_kDOMRectReadOnlyTag = b"R"           # x:Double, y:Double, width:Double, height:Double
-    tag_kDOMQuadTag = b"T"                   # p1:Double, p2:Double, p3:Double, p4:Double
-    tag_kDOMMatrixTag = b"Y"                 # m11..m44: 16 Double
-    tag_kDOMMatrixReadOnlyTag = b"U"         # m11..m44: 16 Double
-    tag_kDOMMatrix2DTag = b"I"               # a..f: 6 Double
-    tag_kDOMMatrix2DReadOnlyTag = b"O"       # a..f: 6 Double
-    tag_kCryptoKeyTag = b"K"                 # subtag:byte, props, usages:uint32_t,
-    # keyDataLength:uint32_t, keyData:byte[keyDataLength]
-    #                 If subtag=AesKeyTag:
-    #                     props = keyLengthBytes:uint32_t, algorithmId:uint32_t
-    #                 If subtag=HmacKeyTag:
-    #                     props = keyLengthBytes:uint32_t, hashId:uint32_t
-    #                 If subtag=RsaHashedKeyTag:
-    #                     props = algorithmId:uint32_t, type:uint32_t,
-    #                     modulusLengthBits:uint32_t,
-    #                     publicExponentLength:uint32_t,
-    #                     publicExponent:byte[publicExponentLength],
-    #                     hashId:uint32_t
-    #                 If subtag=EcKeyTag:
-    #                     props = algorithmId:uint32_t, type:uint32_t,
-    #                     namedCurve:uint32_t
-    tag_kRTCCertificateTag = b"k"  # length:uint32_t, pemPrivateKey:WebCoreString,
-    # pemCertificate:WebCoreString
-    tag_kRTCEncodedAudioFrameTag = b"A"  # uint32_t -> transferred audio frame ID
-    tag_kRTCEncodedVideoFrameTag = b"V"  # uint32_t -> transferred video frame ID
-    tag_kVideoFrameTag = b"v"            # uint32_t -> transferred video frame ID
+    tag_kMessagePortTag = b"M"  
+                                
+    tag_kMojoHandleTag = b"h"   
+                                
+    tag_kBlobTag = b"b"         
+                                
+    tag_kBlobIndexTag = b"i"    
+    tag_kFileTag = b"f"         
+    tag_kFileIndexTag = b"e"    
+    tag_kDOMFileSystemTag = b"d"  
+                                  
+    tag_kNativeFileSystemFileHandleTag = b"n"  
+                                               
+    tag_kNativeFileSystemDirectoryHandleTag = b"N"  
+                                                   
+    tag_kFileListTag = b"l"                     
+    tag_kFileListIndexTag = b"L"                
+    tag_kImageDataTag = b"
+                                               
+                                               
+                                               
+                                               
+    tag_kImageBitmapTag = b"g"        
+                                      
+                                      
+                                      
+                                      
+    tag_kImageBitmapTransferTag = "G"       
+    tag_kOffscreenCanvasTransferTag = b"H"  
+                                            
+                                            
+                                            
+    tag_kReadableStreamTransferTag = b"r"    
+    tag_kTransformStreamTransferTag = b"m"   
+    tag_kWritableStreamTransferTag = b"w"    
+    tag_kDOMPointTag = b"Q"                  
+    tag_kDOMPointReadOnlyTag = b"W"          
+    tag_kDOMRectTag = b"E"                   
+    tag_kDOMRectReadOnlyTag = b"R"           
+    tag_kDOMQuadTag = b"T"                   
+    tag_kDOMMatrixTag = b"Y"                 
+    tag_kDOMMatrixReadOnlyTag = b"U"         
+    tag_kDOMMatrix2DTag = b"I"               
+    tag_kDOMMatrix2DReadOnlyTag = b"O"       
+    tag_kCryptoKeyTag = b"K"                 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    tag_kRTCCertificateTag = b"k"  
+    
+    tag_kRTCEncodedAudioFrameTag = b"A"  
+    tag_kRTCEncodedVideoFrameTag = b"V"  
+    tag_kVideoFrameTag = b"v"            
 
-    # The following tags were used by the Shape Detection API implementation
-    # between M71 and M81. During these milestones, the API was always behind
-    # a flag. Usage was removed in https:#crrev.com/c/2040378.
+    
+    
+    
     tag_kDeprecatedDetectedBarcodeTag = b"B"
     tag_kDeprecatedDetectedFaceTag = b"F"
     tag_kDeprecatedDetectedTextTag = b"t"
 
-    tag_kDOMExceptionTag = b"x"  # name:String,message:String,stack:String
-    tag_kVersionTag = b"\xff"  # version:uint32_t -> Uses this as the file version.
+    tag_kDOMExceptionTag = b"x"  
+    tag_kVersionTag = b"\xff"  
 
 
 class BlinkV8Deserializer:
